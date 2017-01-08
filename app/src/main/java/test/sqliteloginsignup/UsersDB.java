@@ -17,7 +17,7 @@ import android.util.Log;
 public class UsersDB {
     // database constants
     public static final String DB_NAME = "tasklist.db";
-    public static final int    DB_VERSION = 1;
+    public static final int    DB_VERSION = 2;
 
     //users table constants
     public static final String USERS_TABLE = "users";
@@ -108,10 +108,6 @@ public class UsersDB {
             db.execSQL(CREATE_USERS_TABLE);
             db.execSQL(CREATE_LIST_TABLE);
             db.execSQL(CREATE_TASK_TABLE);
-
-            // insert default lists
-            db.execSQL("INSERT INTO list VALUES (1, 'Personal')");
-            db.execSQL("INSERT INTO list VALUES (2, 'Business')");
         }
 
         @Override
@@ -225,6 +221,39 @@ public class UsersDB {
         return task;
     }
 
+    /**
+     * Checks the database to see if the user exists
+     * @param aUser
+     * @return true if the user exists
+     */
+    public boolean userExists(String aUser) {
+        this.openReadableDB();
+        Cursor cur = db.rawQuery("SELECT * FROM " + USERS_TABLE + " WHERE "+USERS_USERNAME+" = '" + aUser + "'", null);
+        boolean exist = (cur.getCount() > 0);
+        cur.close();
+        db.close();
+        return exist;
+
+    }
+
+    private static User getUserFromCursor(Cursor cursor) {
+        if (cursor == null || cursor.getCount() == 0){
+            return null;
+        }
+        else {
+            try {
+                User user = new User(
+                        cursor.getString(USERS_USERNAME_COL),
+                        cursor.getString(USERS_PASSWORD_COL));
+
+                return user;
+            }
+            catch(Exception e) {
+                return null;
+            }
+        }
+    }
+
     private static Task getTaskFromCursor(Cursor cursor) {
         if (cursor == null || cursor.getCount() == 0){
             return null;
@@ -257,6 +286,22 @@ public class UsersDB {
         this.closeDB();
 
         return rowID;
+    }
+
+    public User getUser(String username) {
+        String where = USERS_USERNAME + "= ?";
+        String[] whereArgs = { username };
+
+        this.openReadableDB();
+        Cursor cursor = db.query(USERS_TABLE,
+                null, where, whereArgs, null, null, null);
+        cursor.moveToFirst();
+        User user = getUserFromCursor(cursor);
+        if (cursor != null)
+            cursor.close();
+        this.closeDB();
+
+        return user;
     }
 
     public long insertTask(Task task) {

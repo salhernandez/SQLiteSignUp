@@ -2,6 +2,7 @@ package test.sqliteloginsignup;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -9,6 +10,7 @@ import android.widget.Toast;
 
 public class SignUpActivity extends AppCompatActivity implements View.OnClickListener{
 
+    final String TAG = "SignUpActivity";
     private EditText ETUsername, ETPassword;
     private Button signUpButton, cancelButton;
 
@@ -52,10 +54,19 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             String username = ETUsername.getText().toString();
             String password = ETPassword.getText().toString();
 
-            user = new User(username, password);
-            long insertId = db.insertUser(user);
+            //need to check the database to see if the value already exists
+            Log.d(TAG, "Did the user already exist?"+db.userExists(username));
 
-            toastIt("inserted "+username+" in row: "+insertId);
+            //if the user exists
+            if(db.userExists(username)){
+                toastIt("username "+username+" already exists");
+            }
+            else{//if the user does not exist, then it inserts it
+                user = new User(username, password);
+                long insertId = db.insertUser(user);
+
+                toastIt("inserted "+username+" in row: "+insertId);
+            }
         }
         else{//don't proceed
             toastIt("cannot have empty fields");
@@ -64,6 +75,6 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private void toastIt(String message){
         Toast.makeText(this, message,
-                Toast.LENGTH_LONG).show();
+                Toast.LENGTH_SHORT).show();
     }
 }
