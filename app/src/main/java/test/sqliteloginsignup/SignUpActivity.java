@@ -40,8 +40,22 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void checkCredentials(){
+        // get db and StringBuilder objects
+        UsersDB db;
+        User user;
+
         if(!ETUsername.getText().toString().equals("") && !ETPassword.getText().toString().equals("")){
             //proceed
+            // insert a task - for testing purpose
+            db = new UsersDB(this);
+
+            String username = ETUsername.getText().toString();
+            String password = ETPassword.getText().toString();
+
+            user = new User(username, password);
+            long insertId = db.insertUser(user);
+
+            toastIt("inserted "+username+" in row: "+insertId);
         }
         else{//don't proceed
             toastIt("cannot have empty fields");
