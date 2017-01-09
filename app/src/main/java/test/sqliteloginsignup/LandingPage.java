@@ -10,17 +10,20 @@ import com.facebook.stetho.Stetho;
 
 public class LandingPage extends AppCompatActivity implements View.OnClickListener{
 
-    private Button signIn, signUp;
+    private Button signIn, signUp, showUsers;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing_page);
         signIn = (Button) findViewById(R.id.signInButton);
         signUp = (Button) findViewById(R.id.signUpButton);
+        showUsers = (Button) findViewById(R.id.showUsersButton);
 
         signIn.setOnClickListener(this);
         signUp.setOnClickListener(this);
+        showUsers.setOnClickListener(this);
 
+        //to access dev tools in chrome and see the database contents
         Stetho.initializeWithDefaults(this);
     }
 
@@ -34,6 +37,10 @@ public class LandingPage extends AppCompatActivity implements View.OnClickListen
             case R.id.signUpButton:
                 Intent intent1 = new Intent(LandingPage.this, SignUpActivity.class);
                 startActivity(intent1);
+                break;
+            case R.id.showUsersButton:
+                Intent intent2 = new Intent(LandingPage.this, ShowUsersActivity.class);
+                startActivity(intent2);
                 break;
         }
     }

@@ -12,7 +12,8 @@
 
 
     <TextView
-        android:text="Simple SQLite"
+        android:text="Simple SQLite User Database"
+        android:gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="30sp"
@@ -22,22 +23,29 @@
         android:layout_marginTop="95dp" />
 
     <Button
+        android:text="Show  users"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/signInButton"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/showUsersButton" />
+
+    <Button
         android:text="Sign In"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/signInButton"
+        android:layout_marginTop="17dp"
         android:layout_below="@+id/textView"
-        android:layout_alignLeft="@+id/textView"
-        android:layout_alignStart="@+id/textView"
-        android:layout_marginTop="18dp" />
+        android:layout_toLeftOf="@+id/showUsersButton"
+        android:layout_toStartOf="@+id/showUsersButton" />
 
     <Button
         android:text="Sign Up"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/signUpButton"
-        android:layout_alignBaseline="@+id/signInButton"
-        android:layout_alignBottom="@+id/signInButton"
-        android:layout_alignRight="@+id/textView"
-        android:layout_alignEnd="@+id/textView" />
+        android:layout_above="@+id/showUsersButton"
+        android:layout_toRightOf="@+id/showUsersButton"
+        android:layout_toEndOf="@+id/showUsersButton" />
 </RelativeLayout>

@@ -15,6 +15,9 @@ import android.util.Log;
  */
 
 public class UsersDB {
+
+    final String TAG = "UsersDB";
+
     // database constants
     public static final String DB_NAME = "tasklist.db";
     public static final int    DB_VERSION = 2;
@@ -148,6 +151,157 @@ public class UsersDB {
     }
 
     // public methods
+
+    //NOTE: Only the USER methods are used in this app, the rest are there for reference since they were
+    //in the DB code that I based myself on
+
+    //USER METHODS
+    /////////////////////////////////////////////////
+    /**
+     * Gets all users from the database
+     * @return ArrayList of users
+     */
+    public ArrayList<User> getUsers(){
+        ArrayList<User> users = new ArrayList<>();
+
+        this.openReadableDB();
+        Cursor cur = db.rawQuery("SELECT * FROM " + USERS_TABLE, null);
+        boolean exist = (cur.getCount() > 0);
+
+        if(exist){
+            while (cur.moveToNext()) {
+                users.add(getUserFromCursor(cur));
+                Log.d(TAG, "Got a user");
+            }
+        }
+        if (cur != null)
+            cur.close();
+        this.closeDB();
+        return users;
+    }
+
+    /**
+     * Checks if the username and password match to what is on the database
+     * @param user
+     * @return true if they match
+     */
+    public boolean checkCredentials(User user){
+        boolean success = false;
+        if(isPasswordValid(user)) {
+            success = true;
+        }
+        else
+            success = false;
+
+        return success;
+
+    }
+
+    /**
+     * Checks if the password correct
+     * @param user
+     * @return true if password is correct
+     */
+    private boolean isPasswordValid(User user){
+        boolean success = false;
+        String username = user.getUsername();
+
+        //checks if the username exists
+        if(userExists(username)){
+            User userFromDB = getUser(username);
+
+            //checks if the passwords equal to each other
+            if(userFromDB.getPassword().equals(user.getPassword()))
+                success = true;
+            else
+                success = false;
+        }
+        else{
+            success = false;
+        }
+        return success;
+    }
+
+    /**
+     * Checks the database to see if the user exists
+     * @param aUser
+     * @return true if the user exists
+     */
+    public boolean userExists(String aUser) {
+        this.openReadableDB();
+        Cursor cur = db.rawQuery("SELECT * FROM " + USERS_TABLE + " WHERE "+USERS_USERNAME+" = '" + aUser + "'", null);
+        boolean exist = (cur.getCount() > 0);
+        cur.close();
+        this.closeDB();
+        return exist;
+
+    }
+
+    /**
+     * Gets a User from the cursor
+     * @param cursor
+     * @return User
+     */
+    private static User getUserFromCursor(Cursor cursor) {
+        if (cursor == null || cursor.getCount() == 0){
+            return null;
+        }
+        else {
+            try {
+                User user = new User(
+                        cursor.getString(USERS_USERNAME_COL),
+                        cursor.getString(USERS_PASSWORD_COL));
+
+                return user;
+            }
+            catch(Exception e) {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Gets a user from username
+     * @param username
+     * @return User
+     */
+    public User getUser(String username) {
+        String where = USERS_USERNAME + "= ?";
+        String[] whereArgs = { username };
+
+        this.openReadableDB();
+        Cursor cursor = db.query(USERS_TABLE,
+                null, where, whereArgs, null, null, null);
+        cursor.moveToFirst();
+        User user = getUserFromCursor(cursor);
+        if (cursor != null)
+            cursor.close();
+        this.closeDB();
+
+        return user;
+    }
+
+    /**
+     * Inserts a user to the database
+     * @param user
+     * @return rowID as an int
+     */
+    public long insertUser(User user) {
+        ContentValues cv = new ContentValues();
+        cv.put(USERS_USERNAME, user.getUsername());
+        cv.put(USERS_PASSWORD, user.getPassword());
+
+        this.openWriteableDB();
+        long rowID = db.insert(USERS_TABLE, null, cv);
+        this.closeDB();
+
+        return rowID;
+    }
+
+    //END USER METHODS
+    //////////////////////////////////////////////////////////////////////////////////
+
+
     public ArrayList<List> getLists() {
         ArrayList<List> lists = new ArrayList<List>();
         openReadableDB();
@@ -221,80 +375,6 @@ public class UsersDB {
         return task;
     }
 
-    /**
-     * Checks if the username and password match to what is on the database
-     * @param user
-     * @return true if they match
-     */
-    public boolean checkCredentials(User user){
-        boolean success = false;
-        if(isPasswordValid(user)) {
-            success = true;
-        }
-        else
-            success = false;
-
-        return success;
-
-    }
-
-    /**
-     * Checks if the password correct
-     * @param user
-     * @return true if password is correct
-     */
-    private boolean isPasswordValid(User user){
-        boolean success = false;
-        String username = user.getUsername();
-
-        //checks if the username exists
-        if(userExists(username)){
-            User userFromDB = getUser(username);
-
-            //checks if the passwords equal to each other
-            if(userFromDB.getPassword().equals(user.getPassword()))
-                success = true;
-            else
-                success = false;
-        }
-        else{
-            success = false;
-        }
-        return success;
-    }
-
-    /**
-     * Checks the database to see if the user exists
-     * @param aUser
-     * @return true if the user exists
-     */
-    public boolean userExists(String aUser) {
-        this.openReadableDB();
-        Cursor cur = db.rawQuery("SELECT * FROM " + USERS_TABLE + " WHERE "+USERS_USERNAME+" = '" + aUser + "'", null);
-        boolean exist = (cur.getCount() > 0);
-        cur.close();
-        db.close();
-        return exist;
-
-    }
-
-    private static User getUserFromCursor(Cursor cursor) {
-        if (cursor == null || cursor.getCount() == 0){
-            return null;
-        }
-        else {
-            try {
-                User user = new User(
-                        cursor.getString(USERS_USERNAME_COL),
-                        cursor.getString(USERS_PASSWORD_COL));
-
-                return user;
-            }
-            catch(Exception e) {
-                return null;
-            }
-        }
-    }
 
     private static Task getTaskFromCursor(Cursor cursor) {
         if (cursor == null || cursor.getCount() == 0){
@@ -316,34 +396,6 @@ public class UsersDB {
                 return null;
             }
         }
-    }
-
-    public long insertUser(User user) {
-        ContentValues cv = new ContentValues();
-        cv.put(USERS_USERNAME, user.getUsername());
-        cv.put(USERS_PASSWORD, user.getPassword());
-
-        this.openWriteableDB();
-        long rowID = db.insert(USERS_TABLE, null, cv);
-        this.closeDB();
-
-        return rowID;
-    }
-
-    public User getUser(String username) {
-        String where = USERS_USERNAME + "= ?";
-        String[] whereArgs = { username };
-
-        this.openReadableDB();
-        Cursor cursor = db.query(USERS_TABLE,
-                null, where, whereArgs, null, null, null);
-        cursor.moveToFirst();
-        User user = getUserFromCursor(cursor);
-        if (cursor != null)
-            cursor.close();
-        this.closeDB();
-
-        return user;
     }
 
     public long insertTask(Task task) {

@@ -7,6 +7,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
+
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText ETUsername, ETPassword;
@@ -25,6 +27,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         signInButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
+
+        ETUsername.requestFocus();
+
+        //to access dev tools in chrome and see the database contents
+        Stetho.initializeWithDefaults(this);
     }
 
     @Override
@@ -52,6 +59,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             //checks that the user credentials are correct
             if(db.checkCredentials(user)){
                 toastIt("Successfully logged in");
+                finish();
             }
             else{
                 toastIt("invalid credentials");
