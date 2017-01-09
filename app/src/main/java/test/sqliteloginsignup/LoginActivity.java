@@ -42,6 +42,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void checkCredentials(){
         if(!ETUsername.getText().toString().equals("") && !ETPassword.getText().toString().equals("")){
             //proceed
+
+            String username = ETUsername.getText().toString();
+            String password = ETPassword.getText().toString();
+
+            UsersDB db = new UsersDB(this);
+            User user = new User(username, password);
+
+            //checks that the user credentials are correct
+            if(db.checkCredentials(user)){
+                toastIt("Successfully logged in");
+            }
+            else{
+                toastIt("invalid credentials");
+            }
         }
         else{//don't proceed
             toastIt("cannot have empty fields");

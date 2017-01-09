@@ -222,6 +222,48 @@ public class UsersDB {
     }
 
     /**
+     * Checks if the username and password match to what is on the database
+     * @param user
+     * @return true if they match
+     */
+    public boolean checkCredentials(User user){
+        boolean success = false;
+        if(isPasswordValid(user)) {
+            success = true;
+        }
+        else
+            success = false;
+
+        return success;
+
+    }
+
+    /**
+     * Checks if the password correct
+     * @param user
+     * @return true if password is correct
+     */
+    private boolean isPasswordValid(User user){
+        boolean success = false;
+        String username = user.getUsername();
+
+        //checks if the username exists
+        if(userExists(username)){
+            User userFromDB = getUser(username);
+
+            //checks if the passwords equal to each other
+            if(userFromDB.getPassword().equals(user.getPassword()))
+                success = true;
+            else
+                success = false;
+        }
+        else{
+            success = false;
+        }
+        return success;
+    }
+
+    /**
      * Checks the database to see if the user exists
      * @param aUser
      * @return true if the user exists

@@ -46,9 +46,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         UsersDB db;
         User user;
 
+        //checks that username and password are not empty
         if(!ETUsername.getText().toString().equals("") && !ETPassword.getText().toString().equals("")){
             //proceed
-            // insert a task - for testing purpose
+
             db = new UsersDB(this);
 
             String username = ETUsername.getText().toString();
@@ -65,7 +66,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                 user = new User(username, password);
                 long insertId = db.insertUser(user);
 
-                toastIt("inserted "+username+" in row: "+insertId);
+                toastIt("Successfully added "+username);
             }
         }
         else{//don't proceed
